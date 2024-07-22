@@ -13,13 +13,11 @@ var pgServerName = '${prefix}-postgres-server'
 var databaseSubnetName = 'database-subnet'
 var webappSubnetName = 'webapp-subnet'
 
-/*
 // Added for Azure Redis Cache
 var cacheServerName = '${prefix}-redisCache'
 var cacheSubnetName = 'cache-subnet'
 var cachePrivateEndpointName = 'cache-privateEndpoint'
 var cachePvtEndpointDnsGroupName = 'cacheDnsGroup'
-*/
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: '${prefix}-vnet'
@@ -60,14 +58,12 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
           ]
         }
       }
-/*      
       {
         name: cacheSubnetName
         properties:{
           addressPrefix: '10.0.2.0/24'
-        }          
+        }
       }
-*/        
     ]
   }
   resource databaseSubnet 'subnets' existing = {
@@ -76,11 +72,10 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   resource webappSubnet 'subnets' existing = {
     name: webappSubnetName
   }
-/**  // Added for Azure Redis Cache
+  // Added for Azure Redis Cache
   resource cacheSubnet 'subnets' existing = {
     name: cacheSubnetName
   }
-*/    
 }
 
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -92,7 +87,6 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   ]
 }
 
-/*
 // Added for Azure Redis Cache
 resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'privatelink.redis.cache.windows.net'
@@ -102,7 +96,6 @@ resource privateDnsZoneCache 'Microsoft.Network/privateDnsZones@2020-06-01' = {
     virtualNetwork
   ]
 }
-*/
 
 resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZone
@@ -116,7 +109,6 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   }
 }
 
-/*
 // Added for Azure Redis Cache
 resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
  parent: privateDnsZoneCache
@@ -129,9 +121,8 @@ resource privateDnsZoneLinkCache 'Microsoft.Network/privateDnsZones/virtualNetwo
    }
  }
 }
-*/
 
-/*
+
 resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: cachePrivateEndpointName
   location: location
@@ -165,7 +156,6 @@ resource cachePrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = 
     }
   }
 }
-*/
 
 resource web 'Microsoft.Web/sites@2022-03-01' = {
   name: '${prefix}-app-service'
@@ -193,7 +183,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
       AZURE_POSTGRESQL_CONNECTIONSTRING: 'dbname=${pythonAppDatabase.name} host=${postgresServer.name}.postgres.database.azure.com port=5432 sslmode=require user=${postgresServer.properties.administratorLogin} password=${databasePassword}'
       SECRET_KEY: secretKey
-//      AZURE_REDIS_CONNECTIONSTRING: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.name}.redis.cache.windows.net:6380/0'
+      AZURE_REDIS_CONNECTIONSTRING: 'rediss://:${redisCache.listKeys().primaryKey}@${redisCache.name}.redis.cache.windows.net:6380/0'
     }
   }
 
@@ -353,7 +343,6 @@ resource pythonAppDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@
   name: 'pythonapp'
 }
 
-/*
 //added for Redis Cache
 resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
   location:location
@@ -370,7 +359,6 @@ resource redisCache 'Microsoft.Cache/redis@2023-04-01' = {
     minimumTlsVersion: '1.2'
   }
 }    
-*/
 
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsightsResources.outputs.APPLICATIONINSIGHTS_CONNECTION_STRING
